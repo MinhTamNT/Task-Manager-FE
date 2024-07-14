@@ -25,13 +25,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Provider>
-          <div className="header">
+          <div className="header ">
             <Header />
-            <div className="md:flex items-center px-2 py-1">
-              <div className="w-[30%]">
+            <div className="md:flex min-h-screen pt-[60px]">
+              <div className="w-[20%] md:block hidden">
                 <Sidebar />
               </div>
-              <div className="content w-[70%]">{children}</div>
+              <div className="content w-[70%] md:mx-auto">{children}</div>
             </div>
           </div>
         </Provider>
