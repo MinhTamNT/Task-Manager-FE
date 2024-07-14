@@ -34,16 +34,14 @@ export default function RootLayout({
         <Provider>
           <div className="header ">
             <Header onMenuClick={handleMenuClick} />
-            <div className={`md:flex min-h-screen  pt-[60px]`}>
-              <div className={`w-[20%] md:block`}>
+            <div className={`md:flex min-h-screen  pt-[60px] `}>
+              <div className={` md:block`}>
                 <Sidebar
                   isOpen={isSidebarOpen}
                   setIsSidebarOpen={handleMenuClick}
                 />
               </div>
-              <div className="content mt-5 md:w-[70%] md:mx-auto">
-                {children}
-              </div>
+              <div className="content mt-5 mx-auto p-2 w-full">{children}</div>
             </div>
           </div>
         </Provider>

@@ -1,4 +1,4 @@
 export const metadata = {
-  title: "My Next.js App",
+  title: "Task Manager App",
   description: "This is a description for my Next.js app",
 };
