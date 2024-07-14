@@ -52,7 +52,7 @@ const chartOptions = {
 
 const Home: React.FC = () => {
   return (
-    <main className="flex flex-col min-h-screen p-2">
+    <main className="flex flex-col min-h-screen ">
       <div className="flex flex-wrap justify-center gap-6 mb-8">
         <div className="bg-gradient-to-r from-blue-200 to-blue-400 card">
           <h3 className="card-text">Số Tasks</h3>

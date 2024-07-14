@@ -1,37 +1,49 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Provider } from "./components/Provider";
-import { Header } from "./components/Header/Header";
-import { Sidebar } from "./components/Sidebar/Sidebar";
+// RootLayout.tsx
+"use client";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Task Mananger App",
-  description:
-    "Task manager was built to help users manage the project and tasks",
-};
+import { useState } from "react";
+import { Header } from "./components/Header/Header";
+import { Provider } from "./components/Provider";
+import { Sidebar } from "./components/Sidebar/Sidebar";
+import "./globals.css";
+import { metadata } from "./lib/meta";
+import { useIsMobile } from "./hooks/useMobile";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const isMobile = useIsMobile();
+
+  const handleMenuClick = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <head>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+      </head>
+      <body>
         <Provider>
           <div className="header ">
-            <Header />
-            <div className="md:flex min-h-screen pt-[60px]">
-              <div className="w-[20%] md:block hidden">
-                <Sidebar />
+            <Header onMenuClick={handleMenuClick} />
+            <div className={`md:flex min-h-screen  pt-[60px]`}>
+              <div className={`w-[20%] md:block`}>
+                <Sidebar
+                  isOpen={isSidebarOpen}
+                  setIsSidebarOpen={handleMenuClick}
+                />
               </div>
-              <div className="content w-[70%] md:mx-auto">{children}</div>
+              <div className="content mt-5 md:w-[70%] md:mx-auto">
+                {children}
+              </div>
             </div>
           </div>
         </Provider>
