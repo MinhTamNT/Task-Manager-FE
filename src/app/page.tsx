@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import ChartComponent from "./components/Chart/Chart";
+import { useSession } from "next-auth/react";
 
 const chartData = {
   labels: ["January", "February", "March", "April", "May", "June"],

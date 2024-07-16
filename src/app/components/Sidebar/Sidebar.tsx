@@ -32,9 +32,6 @@ export const Sidebar: React.FC<IProp> = ({ isOpen, setIsSidebarOpen }) => {
 
   const sidebarClass =
     isOpen || !isMobile ? "hidden md:block" : "block md:block z-50 md:z-0";
-  console.log("====================================");
-  console.log(sidebarClass);
-  console.log("====================================");
   return (
     <aside
       className={`bg-white text-black w-64 h-full shadow-lg transform fixed inset-y-0 left-0 md:relative transition-transform duration-200 ease-in-out ${sidebarClass}`}
