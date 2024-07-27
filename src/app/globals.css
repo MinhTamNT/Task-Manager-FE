@@ -47,4 +47,13 @@ html {
   .card-amount { 
     @apply text-2xl font-bold text-center
   }
+  .th-default {
+    @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+  }
+  .td-default {
+    @apply px-3 py-4 whitespace-nowrap text-sm font-medium 
+  }
+  .td-content {
+    @apply px-4 py-4 text-sm text-gray-500
+  }
 }

@@ -3,12 +3,13 @@ import GoogleProvider from "next-auth/providers/google";
 import { graphQLRequest } from "@/app/utils/request";
 
 const ADD_USER_MUTATION = `
-  mutation AddUser($name: String!, $email: String!) {
-    addUser(name: $name, email: $email) {
-      email
-      name
-    }
+  mutation Mutation($uuid: String!, $name: String!, $email: String!) {
+  addUser(uuid: $uuid, name: $name, email: $email) {
+    email
+    name
+    uuid
   }
+}
 `;
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
@@ -45,6 +46,7 @@ const authOptions: NextAuthOptions = {
         const res = await graphQLRequest(
           ADD_USER_MUTATION,
           {
+            uuid: user?.id ?? "",
             name: user.name ?? "",
             email: user.email ?? "",
           },
@@ -59,11 +61,11 @@ const authOptions: NextAuthOptions = {
           return false;
         }
       } catch (error) {
-        console.log("Error during GraphQL request on sign-in:", error);
+        console.error("Error during GraphQL request on sign-in:", error);
         return false;
       }
     },
-    async session({ session, token, user }) {
+    async session({ session, token }) {
       session.access_token = token.idToken as string;
       return session;
     },

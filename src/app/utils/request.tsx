@@ -12,7 +12,7 @@ export const graphQLRequest = async (
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Authorization: token ? `Bearer ${token}` : "", // Only add Authorization header if token is present
+        Authorization: token ? `Bearer ${token}` : "", 
         ...options,
       },
       body: JSON.stringify({ query, variables }),

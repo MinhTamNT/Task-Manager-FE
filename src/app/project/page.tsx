@@ -6,29 +6,7 @@ import { ModalCreateProject } from "../components/Modal/ModalCreateProject";
 import { ListProject } from "../components/ListProject/ListProject";
 export default function Project() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      name: "Project 1",
-      owner: "User 1",
-      status: "Active",
-      lastModified: "2024-07-15",
-    },
-    {
-      id: 2,
-      name: "Project 2",
-      owner: "User 2",
-      status: "Inactive",
-      lastModified: "2024-07-14",
-    },
-    {
-      id: 3,
-      name: "Project 3",
-      owner: "User 3",
-      status: "Active",
-      lastModified: "2024-07-13",
-    },
-  ]);
+
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };

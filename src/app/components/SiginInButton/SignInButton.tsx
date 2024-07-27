@@ -14,7 +14,6 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import React from "react";
 export const SignInButton = () => {
   const { data: session } = useSession();
-  console.log(session);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
