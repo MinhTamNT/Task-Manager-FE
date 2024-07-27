@@ -9,6 +9,7 @@ declare module "next-auth" {
       image?: string | null;
     };
     access_token: string;
+    idToken: String;
   }
 
   interface User {
@@ -20,5 +21,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     accessToken: string;
+    idToken: String;
   }
 }

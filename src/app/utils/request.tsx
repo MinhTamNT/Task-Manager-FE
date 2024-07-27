@@ -1,29 +1,31 @@
-import { useSession } from "next-auth/react";
 import { GRAPHQL_SERVER } from "./constants";
 
-export const graphQLRequest = async (payload: any, options = {}) => {
-  const { data: session } = useSession();
-  if (session?.access_token) {
+export const graphQLRequest = async (
+  query: string,
+  variables: object,
+  token?: string, // Make token optional
+  options = {}
+) => {
+  try {
     const res = await fetch(`${GRAPHQL_SERVER}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
+        Authorization: token ? `Bearer ${token}` : "", // Only add Authorization header if token is present
         ...options,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ query, variables }),
     });
 
     if (!res.ok) {
-      if (res.status === 403) {
-        return null;
-      }
+      throw new Error(`GraphQL request failed with status ${res.status}`);
     }
 
-    const { data } = await res.json();
-    return data;
+    const result = await res.json();
+    return result.data;
+  } catch (error) {
+    console.error("GraphQL request error:", error);
+    return null;
   }
-
-  return null;
 };

@@ -1,4 +1,3 @@
-// components/Header/Header.tsx
 import { useIsMobile } from "@/app/hooks/useMobile";
 import React from "react";
 import { RiMenu2Fill } from "react-icons/ri";

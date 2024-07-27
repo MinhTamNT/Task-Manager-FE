@@ -10,7 +10,6 @@ import { Provider } from "./components/Provider";
 import { Sidebar } from "./components/Sidebar/Sidebar";
 import "./globals.css";
 import { metadata } from "./lib/meta";
-import { useIsMobile } from "./hooks/useMobile";
 
 export default function RootLayout({
   children,
@@ -18,12 +17,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const isMobile = useIsMobile();
-
   const handleMenuClick = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
   return (
     <html lang="en">
       <head>
