@@ -1,11 +1,13 @@
-"use client";
-
-import { IProject } from "@/app/lib";
-import { DeleteOutline, EditOutlined } from "@mui/icons-material";
-import { Box, IconButton, Tooltip } from "@mui/material";
 import React, { useState } from "react";
+import { Box, IconButton, Tooltip } from "@mui/material";
+import { DeleteOutline, EditOutlined } from "@mui/icons-material";
+import { IProject } from "@/app/lib";
 
-export const ListProject: React.FC = () => {
+interface IListProject {
+  listProject: IProject[];
+}
+
+const ListProject: React.FC<IListProject> = ({ listProject }) => {
   const [sortOption, setSortOption] = useState<string>("view");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -17,36 +19,12 @@ export const ListProject: React.FC = () => {
     setSearchTerm(e.target.value);
   };
 
-  const projects: IProject[] = [
-    {
-      name: "Project 1",
-      status: "Active",
-      totalMembers: 10,
-      owner: "Alice",
-      description: "Description of Project 1",
-    },
-    {
-      name: "Project 2",
-      status: "Completed",
-      totalMembers: 5,
-      owner: "Bob",
-      description: "Description of Project 2",
-    },
-    {
-      name: "Project 3",
-      status: "In Progress",
-      totalMembers: 8,
-      owner: "Charlie",
-      description: "Description of Project 3",
-    },
-  ];
-
-  const filteredProjects = projects.filter((project) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProjects = listProject.filter((project) =>
+    project.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className=" min-h-screen">
+    <div className="min-h-screen">
       <div className="bg-white shadow-lg rounded-lg p-4 mb-6">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-4">
           <div className="flex items-center space-x-4 mb-4 sm:mb-0">
@@ -91,8 +69,8 @@ export const ListProject: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredProjects.map((project) => (
-                <tr key={project.name}>
+              {filteredProjects.map((project, index) => (
+                <tr key={project.id}>
                   <td className="px-4 py-4 text-sm font-medium text-gray-900">
                     {project.name}
                   </td>
@@ -109,8 +87,8 @@ export const ListProject: React.FC = () => {
                       {project.status}
                     </span>
                   </td>
-                  <td className="td-content">{project.totalMembers}</td>
-                  <td className="td-content">{project.owner}</td>
+                  <td className="td-content">{project.members?.uuid}</td>
+                  <td className="td-content">{project.author?.name}</td>
                   <td className="td-content">{project.description}</td>
                   <td className="td-content">
                     <Box>
@@ -120,7 +98,7 @@ export const ListProject: React.FC = () => {
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Edit">
-                        <IconButton aria-label="delete" size="medium">
+                        <IconButton aria-label="edit" size="medium">
                           <EditOutlined fontSize="inherit" color="primary" />
                         </IconButton>
                       </Tooltip>
@@ -135,3 +113,5 @@ export const ListProject: React.FC = () => {
     </div>
   );
 };
+
+export default ListProject;

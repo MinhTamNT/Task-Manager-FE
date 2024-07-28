@@ -1,7 +1,15 @@
+export interface IUser {
+  uuid?: string;
+  name?: string;
+  email?: string;
+}
+
 export interface IProject {
-  name: string;
-  status: string;
-  totalMembers: number;
-  owner: string;
-  description: string;
+  id: string;
+  name?: string;
+  description?: string;
+  authorId?: string;
+  author?: IUser;
+  status?: string;
+  members?: IUser;
 }
