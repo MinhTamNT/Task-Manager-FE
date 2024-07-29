@@ -1,6 +1,6 @@
 const ADD_MUTATION_NEW_PORJECT = `
-mutation AddProject($name: String!) {
-  addProject(name: $name) {
+mutation AddProject($name: String!,$description: String) {
+  addProject(name: $name , description: $description) {
     name
     members {
       name
@@ -23,4 +23,31 @@ query Query {
 }
 `;
 
-export { ADD_MUTATION_NEW_PORJECT, GET_PROJECT };
+const DELETE_PROJECT = `
+mutation DeleteProject($deleteProjectId: ID!) {
+  deleteProject(id: $deleteProjectId) {
+    name
+  }
+}
+`;
+const GET_PROJECT_BY_ID = `
+
+ mutation GetProjectById($getProjectByIdId: ID!) {
+  getProjectById(id: $getProjectByIdId) {
+    name
+    members {
+      name
+    }
+    author {
+      name
+    }
+  }
+}
+ `;
+
+export {
+  ADD_MUTATION_NEW_PORJECT,
+  GET_PROJECT,
+  DELETE_PROJECT,
+  GET_PROJECT_BY_ID,
+};

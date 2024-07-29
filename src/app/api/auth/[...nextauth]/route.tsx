@@ -3,11 +3,11 @@ import GoogleProvider from "next-auth/providers/google";
 import { graphQLRequest } from "@/app/utils/request";
 
 const ADD_USER_MUTATION = `
-  mutation Mutation($uuid: String!, $name: String!, $email: String!) {
-  addUser(uuid: $uuid, name: $name, email: $email) {
-    email
-    name
+  mutation Mutation($uuid: String!, $name: String!, $email: String!, $image: String!) {
+  addUser(uuid: $uuid, name: $name, email: $email, image: $image) {
     uuid
+    name
+    email
   }
 }
 `;
@@ -49,6 +49,7 @@ const authOptions: NextAuthOptions = {
             uuid: user?.id ?? "",
             name: user.name ?? "",
             email: user.email ?? "",
+            image: user?.image ?? "",
           },
           account?.id_token
         );

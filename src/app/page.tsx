@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import ChartComponent from "./components/Chart/Chart";
-import { useSession } from "next-auth/react";
 
 const chartData = {
   labels: ["January", "February", "March", "April", "May", "June"],
@@ -75,9 +74,6 @@ const Home: React.FC = () => {
         <div className="w-full">
           <ChartComponent chartData={chartData} chartType="pie" />
         </div>
-      </div>
-      <div className="w-full mt-6">
-        <ChartComponent chartData={chartData} chartType="radar" />
       </div>
     </main>
   );

@@ -7,6 +7,8 @@ interface IProp {
   handleSubmit: () => void;
   nameProject: string;
   setNameProject: React.Dispatch<React.SetStateAction<string>>;
+  description: string;
+  setDescription: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ModalCreateProject: React.FC<IProp> = ({
@@ -15,6 +17,8 @@ const ModalCreateProject: React.FC<IProp> = ({
   handleSubmit,
   nameProject,
   setNameProject,
+  description,
+  setDescription,
 }) => {
   return (
     <Modal
@@ -50,18 +54,36 @@ const ModalCreateProject: React.FC<IProp> = ({
             setNameProject(e.target.value)
           }
         />
-        <Button
-          variant="contained"
-          onClick={handleSubmit}
-          sx={{
-            backgroundColor: "#3f51b5",
-            color: "white",
-            "&:hover": { backgroundColor: "#303f9f" },
-            mt: 2,
-          }}
-        >
-          Create
-        </Button>
+        <TextField
+          id="project-description"
+          label="Description"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          multiline
+          rows={4}
+          value={description}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setDescription(e.target.value)
+          }
+        />
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            sx={{
+              backgroundColor: "#3f51b5",
+              color: "white",
+              "&:hover": { backgroundColor: "#303f9f" },
+              mr: 1,
+            }}
+          >
+            Create
+          </Button>
+          <Button variant="outlined" onClick={handleModalClose} sx={{ mr: 1 }}>
+            Cancel
+          </Button>
+        </Box>
       </Box>
     </Modal>
   );
