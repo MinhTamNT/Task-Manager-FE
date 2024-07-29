@@ -2,20 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+    --foreground-rgb: 255, 255, 255; /* White text */
+    --background-start-rgb: 0, 0, 0; /* Black background start */
+    --background-end-rgb: 0, 0, 0; /* Black background end */
   }
 }
 
+/* Light Mode */
+@media (prefers-color-scheme: light) {
+  :root {
+    --foreground-rgb: 0, 0, 0; /* Black text */
+    --background-start-rgb: 255, 255, 255; /* White background start */
+    --background-end-rgb: 240, 240, 240; /* Light gray background end */
+  }
+}
+
+/* Custom Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 2px;
 }
@@ -32,6 +36,7 @@
   );
 }
 
+/* Prevent scrolling beyond the viewport */
 html {
   overscroll-behavior-y: auto;
 }

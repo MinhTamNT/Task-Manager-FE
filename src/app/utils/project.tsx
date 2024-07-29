@@ -32,12 +32,15 @@ mutation DeleteProject($deleteProjectId: ID!) {
 `;
 const GET_PROJECT_BY_ID = `
 
- mutation GetProjectById($getProjectByIdId: ID!) {
+ query GetProjectById($getProjectByIdId: ID!) {
   getProjectById(id: $getProjectByIdId) {
     name
     members {
       name
+      image
     }
+    id
+    status
     author {
       name
     }

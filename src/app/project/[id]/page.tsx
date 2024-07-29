@@ -35,7 +35,7 @@ interface Task {
   subTasks?: Task[];
 }
 
-function ProjectInfor({ params }: { params: { id: string } }) {
+function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [project, setProject] = useState<IProject | null>(null);
   const [openTaskModal, setOpenTaskModal] = useState<boolean>(false);
@@ -63,7 +63,6 @@ function ProjectInfor({ params }: { params: { id: string } }) {
           session?.access_token
         );
         setTimeout(() => {
-          //   setTaskList(fakeTaskData);
           setProject(res?.getProjectById);
           setIsLoading(false);
         }, 2000);
@@ -89,10 +88,10 @@ function ProjectInfor({ params }: { params: { id: string } }) {
 
   const handleCreateTask = () => {
     if (
-      newTask.trim() === "" ??
-      taskDescription.trim() === "" ??
-      taskAssignee.trim() === "" ??
-      taskDueDate.trim() === "" ??
+      newTask.trim() === "" ||
+      taskDescription.trim() === "" ||
+      taskAssignee.trim() === "" ||
+      taskDueDate.trim() === "" ||
       taskStatus.trim() === ""
     ) {
       setSnackbarMessage("All fields are required");
@@ -119,7 +118,6 @@ function ProjectInfor({ params }: { params: { id: string } }) {
   };
 
   const handleInviteMember = () => {
-    console.log("Inviting member");
     setOpenInviteModal(false);
   };
 
@@ -294,6 +292,7 @@ function ProjectInfor({ params }: { params: { id: string } }) {
         open={openInviteModal}
         onClose={() => setOpenInviteModal(false)}
         onInviteMember={handleInviteMember}
+        projectId={params?.id}
       />
 
       <Snackbar

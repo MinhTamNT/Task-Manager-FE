@@ -11,6 +11,9 @@ import "./globals.css";
 import { metadata } from "./lib/meta";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ApolloProvider } from "@apollo/client";
+import { client } from "./components/configs/apollo-client";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,6 +23,7 @@ export default function RootLayout({
   const handleMenuClick = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
   return (
     <html lang="en">
       <head>
@@ -28,19 +32,23 @@ export default function RootLayout({
       </head>
       <body>
         <Provider>
-          <ToastContainer />
-          <div className="header ">
-            <Header onMenuClick={handleMenuClick} />
-            <div className={`md:flex min-h-screen  pt-[60px] `}>
-              <div className={` md:block`}>
-                <Sidebar
-                  isOpen={isSidebarOpen}
-                  setIsSidebarOpen={handleMenuClick}
-                />
+          <ApolloProvider client={client}>
+            <ToastContainer />
+            <div className="header">
+              <Header onMenuClick={handleMenuClick} />
+              <div className={`md:flex min-h-screen pt-[60px]`}>
+                <div className={`md:block`}>
+                  <Sidebar
+                    isOpen={isSidebarOpen}
+                    setIsSidebarOpen={handleMenuClick}
+                  />
+                </div>
+                <div className="content mt-5 mx-auto p-2 w-full">
+                  {children}
+                </div>
               </div>
-              <div className="content mt-5 mx-auto p-2 w-full">{children}</div>
             </div>
-          </div>
+          </ApolloProvider>
         </Provider>
       </body>
     </html>
