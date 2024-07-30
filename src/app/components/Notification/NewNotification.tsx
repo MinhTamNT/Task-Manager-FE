@@ -8,6 +8,7 @@ import {
   MenuItem,
   ListItemText,
   Avatar,
+  Box,
   Divider,
 } from "@mui/material";
 import { useProject } from "../Context/ProjectContext";
@@ -41,7 +42,6 @@ export default function NewNotification() {
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
 
-    // Reset notification count when menu is opened
     if (notificationCount > 0) {
       setNotificationCount(0);
     }
@@ -56,7 +56,7 @@ export default function NewNotification() {
   };
 
   return (
-    <div>
+    <Box>
       <Tooltip title="New Notification">
         <IconButton onClick={handleClick} className="relative">
           <Badge
@@ -118,6 +118,6 @@ export default function NewNotification() {
           </>
         )}
       </Menu>
-    </div>
+    </Box>
   );
 }

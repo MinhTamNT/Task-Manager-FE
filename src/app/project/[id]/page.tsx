@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "@/app/components/Loading/Loading";
 import InviteMemberModal from "@/app/components/Modal/InviteMemberModal";
 import TaskModal from "@/app/components/Modal/TaskModal";
 import { Task } from "@/app/lib/interface";
@@ -8,7 +9,6 @@ import { useQuery, useSubscription } from "@apollo/client";
 import {
   Box,
   Button,
-  CircularProgress,
   Collapse,
   Paper,
   Snackbar,
@@ -25,7 +25,6 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { GrAdd, GrProjects } from "react-icons/gr";
 
-// Custom hooks to be used directly inside the component
 const useProjectQuery = (
   projectId: string | undefined,
   token: string | undefined
@@ -78,15 +77,13 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
   // Handle project update subscription
   useEffect(() => {
     if (subscriptionData?.projectUpdated) {
-      // Refresh project data when updated through subscription
-      // You might need to refetch the project query here or update local state
     }
   }, [subscriptionData]);
 
   if (projectLoading) {
     return (
       <Box className="flex items-center justify-center h-60">
-        <CircularProgress />
+        <LoadingSpinner />
       </Box>
     );
   }
@@ -97,7 +94,6 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
 
   const project = projectData?.getProjectById;
 
-  // Helper function to get progress percentage
   const getProgressPercentage = (status: string): number => {
     switch (status) {
       case "Not Started":
@@ -111,7 +107,6 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
     }
   };
 
-  // Handler to create a new task
   const handleCreateTask = () => {
     if (
       newTask.trim() === "" ||
@@ -143,7 +138,6 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
     setTaskStatus("");
   };
 
-  // Handler to invite a member
   const handleInviteMember = () => {
     setOpenInviteModal(false);
   };
@@ -161,7 +155,6 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
     });
   };
 
-  // Render task rows
   const renderTaskRows = (tasks: Task[]): React.ReactNode => {
     return tasks.map((task) => (
       <React.Fragment key={task.id}>

@@ -75,7 +75,7 @@ const InviteMemberModal: FC<InviteMemberModalProps> = ({
 
       setSnackbarOpen(true);
       onInviteMember();
-      setProjectId(projectId)
+      setProjectId(projectId);
     } catch (error) {
       setSnackbarMessage("Error inviting user");
       setSnackbarOpen(true);
@@ -110,15 +110,15 @@ const InviteMemberModal: FC<InviteMemberModalProps> = ({
           {searchTerm.length > 0 ? (
             searchResults.map((user) => (
               <ListItem
-                key={user.id}
-                onClick={() => handleSelectUser(user.id)}
+                key={user.uuid}
+                onClick={() => handleSelectUser(user.uuid)}
                 sx={{
                   backgroundColor:
-                    selectedUser === user.id ? "#e0e0e0" : "inherit",
+                    selectedUser === user.uuid ? "#e0e0e0" : "inherit",
                   borderRadius: "10px",
                   "&:hover": {
                     backgroundColor:
-                      selectedUser !== user.id ? "#f5f5f5" : "#e0e0e0",
+                      selectedUser !== user.uuid ? "#f5f5f5" : "#e0e0e0",
                   },
                 }}
               >

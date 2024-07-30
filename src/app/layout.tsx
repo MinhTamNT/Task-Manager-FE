@@ -45,9 +45,7 @@ export default function RootLayout({
                       setIsSidebarOpen={handleMenuClick}
                     />
                   </div>
-                  <div className="content mt-5 mx-auto p-2 w-full">
-                    {children}
-                  </div>
+                  <div className="content mx-auto p-2 w-full">{children}</div>
                 </div>
               </div>
             </ProjectProvider>

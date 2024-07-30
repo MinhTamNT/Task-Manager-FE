@@ -18,4 +18,14 @@ const INVITATION_RECEIVED_SUBSCRIPTION = gql`
   }
 `;
 
-export { INVITATION_RECEIVED_SUBSCRIPTION };
+const NOTIFICATION_CREATED_SUBSCRIPTION = gql`
+  subscription OnNotificationCreated {
+    notificationCreated {
+      userId
+      message
+      createdAt
+    }
+  }
+`;
+
+export { INVITATION_RECEIVED_SUBSCRIPTION, NOTIFICATION_CREATED_SUBSCRIPTION };
