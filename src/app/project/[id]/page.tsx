@@ -2,9 +2,9 @@
 
 import InviteMemberModal from "@/app/components/Modal/InviteMemberModal";
 import TaskModal from "@/app/components/Modal/TaskModal";
-import { IProject } from "@/app/lib";
-import { GET_PROJECT_BY_ID } from "@/app/utils/project";
-import { graphQLRequest } from "@/app/utils/request";
+import { Task } from "@/app/lib/interface";
+import { GET_PROJECT_BY_ID, PROJECT_UPDATED } from "@/app/utils/project";
+import { useQuery, useSubscription } from "@apollo/client";
 import {
   Box,
   Button,
@@ -25,19 +25,31 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { GrAdd, GrProjects } from "react-icons/gr";
 
-interface Task {
-  id: string;
-  name: string;
-  description: string;
-  assignee: string;
-  dueDate: string;
-  status: string;
-  subTasks?: Task[];
-}
+// Custom hooks to be used directly inside the component
+const useProjectQuery = (
+  projectId: string | undefined,
+  token: string | undefined
+) => {
+  return useQuery(GET_PROJECT_BY_ID, {
+    variables: { getProjectByIdId: projectId },
+    context: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+    skip: !projectId || !token,
+  });
+};
+
+const useProjectSubscription = (projectId: string | undefined) => {
+  return useSubscription(PROJECT_UPDATED, {
+    variables: { projectId },
+    skip: !projectId,
+  });
+};
 
 function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [project, setProject] = useState<IProject | null>(null);
+  // States
   const [openTaskModal, setOpenTaskModal] = useState<boolean>(false);
   const [openInviteModal, setOpenInviteModal] = useState<boolean>(false);
   const [newTask, setNewTask] = useState<string>("");
@@ -51,28 +63,41 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
   );
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
+
   const { data: session } = useSession();
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      setIsLoading(true);
-      try {
-        const res = await graphQLRequest(
-          GET_PROJECT_BY_ID,
-          { getProjectByIdId: params?.id },
-          session?.access_token
-        );
-        setTimeout(() => {
-          setProject(res?.getProjectById);
-          setIsLoading(false);
-        }, 2000);
-      } catch (error) {
-        console.error("Error fetching project:", error);
-      }
-    };
-    fetchProject();
-  }, [params?.id, session?.access_token]);
+  // Hooks
+  const {
+    data: projectData,
+    loading: projectLoading,
+    error: projectError,
+  } = useProjectQuery(params?.id, session?.access_token);
 
+  const { data: subscriptionData } = useProjectSubscription(params?.id);
+
+  // Handle project update subscription
+  useEffect(() => {
+    if (subscriptionData?.projectUpdated) {
+      // Refresh project data when updated through subscription
+      // You might need to refetch the project query here or update local state
+    }
+  }, [subscriptionData]);
+
+  if (projectLoading) {
+    return (
+      <Box className="flex items-center justify-center h-60">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (projectError) {
+    return <div>Error loading project: {projectError.message}</div>;
+  }
+
+  const project = projectData?.getProjectById;
+
+  // Helper function to get progress percentage
   const getProgressPercentage = (status: string): number => {
     switch (status) {
       case "Not Started":
@@ -86,6 +111,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
     }
   };
 
+  // Handler to create a new task
   const handleCreateTask = () => {
     if (
       newTask.trim() === "" ||
@@ -117,10 +143,12 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
     setTaskStatus("");
   };
 
+  // Handler to invite a member
   const handleInviteMember = () => {
     setOpenInviteModal(false);
   };
 
+  // Toggle task expansion
   const handleToggleExpand = (taskId: string) => {
     setExpandedTaskIds((prev) => {
       const newExpanded = new Set(prev);
@@ -133,6 +161,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
     });
   };
 
+  // Render task rows
   const renderTaskRows = (tasks: Task[]): React.ReactNode => {
     return tasks.map((task) => (
       <React.Fragment key={task.id}>
@@ -182,11 +211,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg min-h-screen w-full">
-      {isLoading ? (
-        <Box className="flex items-center justify-center h-60">
-          <CircularProgress />
-        </Box>
-      ) : (
+      {project && (
         <>
           <Box className="flex items-center space-x-4">
             <Tooltip title="Project Name">
@@ -221,7 +246,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
             </Typography>
             <div className="flex flex-wrap gap-2">
               {project?.members?.length ? (
-                project.members.map((member) => (
+                project.members.map((member: any) => (
                   <Button
                     key={member.uuid}
                     variant="outlined"
@@ -294,7 +319,6 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
         onInviteMember={handleInviteMember}
         projectId={params?.id}
       />
-
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

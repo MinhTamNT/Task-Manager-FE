@@ -19,3 +19,13 @@ export interface TabPanelProps {
   index: number;
   value: number;
 }
+
+export interface Task {
+  id: string;
+  name: string;
+  description: string;
+  assignee: string;
+  dueDate: string;
+  status: string;
+  subTasks?: Task[];
+}

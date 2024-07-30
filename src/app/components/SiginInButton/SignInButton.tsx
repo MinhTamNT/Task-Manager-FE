@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { signIn, signOut, useSession } from "next-auth/react";
 import React from "react";
+import NewNotification from "../Notification/NewNotification";
 export const SignInButton = () => {
   const { data: session } = useSession();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -24,7 +25,8 @@ export const SignInButton = () => {
   };
   if (session) {
     return (
-      <div className=" absolute right-4 ">
+      <div className=" flex items-center absolute right-4 ">
+        <NewNotification />
         <Tooltip title="Account Setting">
           <IconButton
             onClick={handleClick}

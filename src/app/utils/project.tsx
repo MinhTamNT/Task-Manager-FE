@@ -1,3 +1,5 @@
+import { gql } from "@apollo/client";
+
 const ADD_MUTATION_NEW_PORJECT = `
 mutation AddProject($name: String!,$description: String) {
   addProject(name: $name , description: $description) {
@@ -30,27 +32,42 @@ mutation DeleteProject($deleteProjectId: ID!) {
   }
 }
 `;
-const GET_PROJECT_BY_ID = `
-
- query GetProjectById($getProjectByIdId: ID!) {
-  getProjectById(id: $getProjectByIdId) {
-    name
-    members {
+const GET_PROJECT_BY_ID = gql`
+  query GetProjectById($getProjectByIdId: ID!) {
+    getProjectById(id: $getProjectByIdId) {
+      id
       name
-      image
-    }
-    id
-    status
-    author {
-      name
+      description
     }
   }
-}
- `;
+`;
+const PROJECT_UPDATED = gql`
+  subscription OnProjectUpdated($projectId: ID!) {
+    projectUpdated(projectId: $projectId) {
+      id
+      name
+      description
+    }
+  }
+`;
 
+const INVITE_USER = gql`
+  mutation InviteUser($projectId: ID!, $userId: ID!) {
+    inviteUser(projectId: $projectId, userId: $userId) {
+      id
+      name
+      invitations {
+        userId
+        status
+      }
+    }
+  }
+`;
 export {
   ADD_MUTATION_NEW_PORJECT,
   GET_PROJECT,
   DELETE_PROJECT,
   GET_PROJECT_BY_ID,
+  PROJECT_UPDATED,
+  INVITE_USER,
 };

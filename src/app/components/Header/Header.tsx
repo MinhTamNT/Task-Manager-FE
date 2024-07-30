@@ -30,9 +30,15 @@ export const Header: React.FC<IHeaderProps> = ({ onMenuClick }) => {
             />
           </>
         )}
-        <span className="text-xl font-semibold text-indigo-600">
-          Task Manager App
-        </span>
+        {isMobile ? (
+          <></>
+        ) : (
+          <>
+            <span className="text-xl font-semibold text-indigo-600">
+              Task Manager App
+            </span>
+          </>
+        )}
       </div>
       <SignInButton />
     </header>

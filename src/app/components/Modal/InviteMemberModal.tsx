@@ -8,31 +8,38 @@ import {
   ListItem,
   ListItemText,
   Avatar,
+  Snackbar,
 } from "@mui/material";
 import React, { FC, useEffect, useState } from "react";
 import { graphQLRequest } from "@/app/utils/request";
 import { SEARCH_USER } from "@/app/utils/user";
 import { useSession } from "next-auth/react";
 import { styleModalInvite } from "../Style/Mui/Mui";
+import { INVITE_USER } from "@/app/utils/project";
+import { useMutation } from "@apollo/client";
+import { useProject } from "../Context/ProjectContext";
 
 interface InviteMemberModalProps {
   open: boolean;
   onClose: () => void;
-  onInviteMember: (userId: string) => void;
   projectId: string;
+  onInviteMember: () => void;
 }
 
 const InviteMemberModal: FC<InviteMemberModalProps> = ({
   open,
   onClose,
-  onInviteMember,
   projectId,
+  onInviteMember,
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState<string>("");
+  const [inviteUser] = useMutation(INVITE_USER);
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>("");
   const { data: session } = useSession();
-
+  const { projectID, setProjectId } = useProject(); // Access context
   const handleSearch = async () => {
     if (searchTerm.trim() === "") return;
     try {
@@ -42,7 +49,6 @@ const InviteMemberModal: FC<InviteMemberModalProps> = ({
         session?.access_token
       );
       setSearchResults(response?.searchUsersByName || []);
-      console.log(response?.searchUsersByName);
     } catch (error) {
       console.error("Error searching for users:", error);
     }
@@ -56,17 +62,29 @@ const InviteMemberModal: FC<InviteMemberModalProps> = ({
     setSelectedUser(userId);
   };
 
-  const handleInvite = () => {
-    if (selectedUser) {
-      console.log(selectedUser);
-      onInviteMember(selectedUser);
-      setSelectedUser("");
-      setSearchTerm("");
-      setSearchResults([]);
+  const handleInvite = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const result = await inviteUser({
+        variables: { projectId, userId: selectedUser },
+      });
+      setSnackbarMessage(
+        `User invited to project: ${result.data.inviteUser.name}`
+      );
+
+      setSnackbarOpen(true);
+      onInviteMember();
+      setProjectId(projectId)
+    } catch (error) {
+      setSnackbarMessage("Error inviting user");
+      setSnackbarOpen(true);
     }
   };
 
-  
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
 
   return (
     <Modal
@@ -75,12 +93,7 @@ const InviteMemberModal: FC<InviteMemberModalProps> = ({
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
     >
-      <Box
-        className="modal-box"
-        sx={{
-          ...styleModalInvite,
-        }}
-      >
+      <Box className="modal-box" sx={styleModalInvite}>
         <Typography variant="h6" className="mb-4">
           Invite Team Member
         </Typography>
@@ -101,16 +114,16 @@ const InviteMemberModal: FC<InviteMemberModalProps> = ({
                 onClick={() => handleSelectUser(user.id)}
                 sx={{
                   backgroundColor:
-                    selectedUser === user.uuid ? "#e0e0e0" : "inherit",
+                    selectedUser === user.id ? "#e0e0e0" : "inherit",
                   borderRadius: "10px",
                   "&:hover": {
                     backgroundColor:
-                      selectedUser !== user.uuid ? "#f5f5f5" : "#e0e0e0",
+                      selectedUser !== user.id ? "#f5f5f5" : "#e0e0e0",
                   },
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                  <Avatar src={user?.image} />
+                  <Avatar src={user.image} />
                   <ListItemText primary={user.name} />
                 </Box>
               </ListItem>
@@ -134,6 +147,13 @@ const InviteMemberModal: FC<InviteMemberModalProps> = ({
             Invite
           </Button>
         </Box>
+
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          message={snackbarMessage}
+        />
       </Box>
     </Modal>
   );

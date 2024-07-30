@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "./components/configs/apollo-client";
+import { ProjectProvider } from "./components/Context/ProjectContext";
 
 export default function RootLayout({
   children,
@@ -33,21 +34,23 @@ export default function RootLayout({
       <body>
         <Provider>
           <ApolloProvider client={client}>
-            <ToastContainer />
-            <div className="header">
-              <Header onMenuClick={handleMenuClick} />
-              <div className={`md:flex min-h-screen pt-[60px]`}>
-                <div className={`md:block`}>
-                  <Sidebar
-                    isOpen={isSidebarOpen}
-                    setIsSidebarOpen={handleMenuClick}
-                  />
-                </div>
-                <div className="content mt-5 mx-auto p-2 w-full">
-                  {children}
+            <ProjectProvider>
+              <ToastContainer />
+              <div className="header">
+                <Header onMenuClick={handleMenuClick} />
+                <div className={`md:flex min-h-screen pt-[60px]`}>
+                  <div className={`md:block`}>
+                    <Sidebar
+                      isOpen={isSidebarOpen}
+                      setIsSidebarOpen={handleMenuClick}
+                    />
+                  </div>
+                  <div className="content mt-5 mx-auto p-2 w-full">
+                    {children}
+                  </div>
                 </div>
               </div>
-            </div>
+            </ProjectProvider>
           </ApolloProvider>
         </Provider>
       </body>
