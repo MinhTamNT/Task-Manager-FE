@@ -21,6 +21,10 @@ query Query {
       name
     }
     description
+     members {
+      name 
+      image
+     }
   }
 }
 `;
@@ -38,6 +42,10 @@ const GET_PROJECT_BY_ID = gql`
       id
       name
       description
+      members {
+        name
+        image
+      }
     }
   }
 `;

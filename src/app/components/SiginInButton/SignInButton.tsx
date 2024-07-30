@@ -11,23 +11,34 @@ import {
   Typography,
 } from "@mui/material";
 import { signIn, signOut, useSession } from "next-auth/react";
-import React from "react";
+import React, { useEffect } from "react";
 import NewNotification from "../Notification/NewNotification";
+import { setCookie } from "cookies-next";
+
 export const SignInButton = () => {
   const { data: session } = useSession();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  useEffect(() => {
+    if (session?.access_token) {
+      setCookie("token", session?.access_token);
+    }
+  }, [session]);
+
   if (session) {
     return (
-      <div className=" flex items-center absolute right-4 ">
+      <div className="flex items-center absolute right-4">
         <NewNotification />
-        <Tooltip title="Account Setting">
+        <Tooltip title="Account Settings">
           <IconButton
             onClick={handleClick}
             size="small"
@@ -37,11 +48,11 @@ export const SignInButton = () => {
             aria-expanded={open ? "true" : undefined}
           >
             <Avatar
-              src={session?.user?.image ?? ""}
+              src={session.user?.image ?? ""}
               alt="avatar-user"
               sx={{ cursor: "pointer", marginRight: "10px" }}
             />
-            <Typography>{session?.user?.name}</Typography>
+            <Typography>{session.user?.name}</Typography>
           </IconButton>
         </Tooltip>
         <Menu
@@ -81,27 +92,29 @@ export const SignInButton = () => {
           anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
           <MenuItem onClick={handleClose}>
-            <Avatar src={session?.user?.image ?? ""} alt="avatar-user" />
-            Profile
+            <Avatar src={session.user?.image ?? ""} alt="avatar-user" />
+            <Typography variant="body2" sx={{ ml: 1 }}>
+              Profile
+            </Typography>
           </MenuItem>
           <Divider />
-
           <MenuItem onClick={() => signOut()}>
             <ListItemIcon>
               <Logout fontSize="medium" />
             </ListItemIcon>
-            Logout
+            <Typography variant="body2" sx={{ ml: 1 }}>
+              Logout
+            </Typography>
           </MenuItem>
         </Menu>
       </div>
     );
   }
+
   return (
-    <div className=" absolute right-4">
+    <div className="absolute right-4">
       <button
-        onClick={() => {
-          signIn();
-        }}
+        onClick={() => signIn()}
         className="text-black bg-white shadow-sm py-1 px-2 border-2 rounded-md border-black"
       >
         Sign in

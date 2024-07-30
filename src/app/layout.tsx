@@ -12,8 +12,8 @@ import { metadata } from "./lib/meta";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ApolloProvider } from "@apollo/client";
-import { client } from "./components/configs/apollo-client";
 import { ProjectProvider } from "./components/Context/ProjectContext";
+import { client } from "./components/configs/ApolloClient";
 
 export default function RootLayout({
   children,
@@ -45,7 +45,7 @@ export default function RootLayout({
                       setIsSidebarOpen={handleMenuClick}
                     />
                   </div>
-                  <div className="content mx-auto p-2 w-full">{children}</div>
+                  <div className="content  mx-auto p-2 w-full">{children}</div>
                 </div>
               </div>
             </ProjectProvider>

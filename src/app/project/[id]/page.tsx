@@ -1,5 +1,6 @@
 "use client";
 
+import { useProject } from "@/app/components/Context/ProjectContext";
 import LoadingSpinner from "@/app/components/Loading/Loading";
 import InviteMemberModal from "@/app/components/Modal/InviteMemberModal";
 import TaskModal from "@/app/components/Modal/TaskModal";
@@ -7,6 +8,8 @@ import { Task } from "@/app/lib/interface";
 import { GET_PROJECT_BY_ID, PROJECT_UPDATED } from "@/app/utils/project";
 import { useQuery, useSubscription } from "@apollo/client";
 import {
+  Avatar,
+  AvatarGroup,
   Box,
   Button,
   Collapse,
@@ -48,7 +51,6 @@ const useProjectSubscription = (projectId: string | undefined) => {
 };
 
 function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
-  // States
   const [openTaskModal, setOpenTaskModal] = useState<boolean>(false);
   const [openInviteModal, setOpenInviteModal] = useState<boolean>(false);
   const [newTask, setNewTask] = useState<string>("");
@@ -64,8 +66,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
   const { data: session } = useSession();
-
-  // Hooks
+  const { projectID, setProjectId } = useProject();
   const {
     data: projectData,
     loading: projectLoading,
@@ -74,7 +75,6 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
 
   const { data: subscriptionData } = useProjectSubscription(params?.id);
 
-  // Handle project update subscription
   useEffect(() => {
     if (subscriptionData?.projectUpdated) {
     }
@@ -87,7 +87,6 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
       </Box>
     );
   }
-
   if (projectError) {
     return <div>Error loading project: {projectError.message}</div>;
   }
@@ -201,7 +200,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
       </React.Fragment>
     ));
   };
-
+  console.log(project);
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg min-h-screen w-full">
       {project && (
@@ -238,15 +237,16 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
               Team Members
             </Typography>
             <div className="flex flex-wrap gap-2">
-              {project?.members?.length ? (
+              {project?.members?.length > 0 ? (
                 project.members.map((member: any) => (
-                  <Button
+                  <div
                     key={member.uuid}
-                    variant="outlined"
-                    className="text-gray-700 border-gray-300 hover:bg-gray-100"
+                    className="text-gray-700 border-gray-300 hover:bg-gray-100 mb-3"
                   >
-                    {member.name}
-                  </Button>
+                    <AvatarGroup max={10}>
+                      <Avatar alt={member.name} src={member?.image} />
+                    </AvatarGroup>
+                  </div>
                 ))
               ) : (
                 <Typography className="text-gray-600">
