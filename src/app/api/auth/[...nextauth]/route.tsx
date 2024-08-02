@@ -4,12 +4,12 @@ import { graphQLRequest } from "@/app/utils/request";
 
 const ADD_USER_MUTATION = `
   mutation Mutation($uuid: String!, $name: String!, $email: String!, $image: String!) {
-  addUser(uuid: $uuid, name: $name, email: $email, image: $image) {
-    uuid
-    name
-    email
+    addUser(uuid: $uuid, name: $name, email: $email, image: $image) {
+      uuid
+      name
+      email
+    }
   }
-}
 `;
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
@@ -17,6 +17,60 @@ const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
 if (!googleClientId || !googleClientSecret) {
   throw new Error("Missing Google OAuth environment variables");
+}
+
+// Refresh token URL
+const GOOGLE_AUTHORIZATION_URL =
+  "https://accounts.google.com/o/oauth2/v2/auth?" +
+  new URLSearchParams({
+    prompt: "consent",
+    access_type: "offline",
+    response_type: "code",
+  }).toString();
+
+/**
+ * Takes a token, and returns a new token with updated
+ * `accessToken` and `accessTokenExpires`. If an error occurs,
+ * returns the old token and an error property
+ */
+async function refreshAccessToken(token: any) {
+  try {
+    const url =
+      "https://oauth2.googleapis.com/token?" +
+      new URLSearchParams({
+        client_id: googleClientId!,
+        client_secret: googleClientSecret!,
+        grant_type: "refresh_token",
+        refresh_token: token.refreshToken!,
+      }).toString();
+
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      method: "POST",
+    });
+
+    const refreshedTokens = await response.json();
+
+    if (!response.ok) {
+      throw refreshedTokens;
+    }
+
+    return {
+      ...token,
+      accessToken: refreshedTokens.access_token,
+      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
+    };
+  } catch (error) {
+    console.log(error);
+
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
 }
 
 const authOptions: NextAuthOptions = {
@@ -67,7 +121,10 @@ const authOptions: NextAuthOptions = {
       }
     },
     async session({ session, token }) {
-      session.access_token = token.idToken as string;
+      if (token) {
+        session.access_token = token.idToken as string;
+        session.error = token.errror as string;
+      }
       return session;
     },
   },

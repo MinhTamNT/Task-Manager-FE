@@ -29,3 +29,16 @@ export interface Task {
   status: string;
   subTasks?: Task[];
 }
+
+export interface Notification {
+  id: string;
+  message: string;
+  projectId: string;
+  read: boolean;
+  type: string;
+  createdAt: string;
+}
+
+export interface NotificationCreatedData {
+  notificationCreated: Notification;
+}

@@ -48,12 +48,14 @@ const MARK_NOTIFICATION_AS_READ = gql`
     }
   }
 `;
-const UPDATE_INVITATION_STATUS_WS = gql`
-  subscription UpdateInvitationStatus($projectId: ID!, $userId: ID!) {
-    invitationStatusChanged(projectId: $projectId, userId: $userId) {
-      id
-      status
-      updatedAt
+const INVITATION_STATUS_CHANGED = gql`
+  subscription InvitationStatusChanged($projectId: ID!) {
+    invitationStatusChanged(projectId: $projectId) {
+      invitation {
+        userId
+        status
+      }
+      projectId
     }
   }
 `;
@@ -71,5 +73,5 @@ export {
   GET_NOTIFICATIONS,
   MARK_NOTIFICATION_AS_READ,
   UPDATE_INVITATION_STATUS,
-  UPDATE_INVITATION_STATUS_WS,
+  INVITATION_STATUS_CHANGED,
 };

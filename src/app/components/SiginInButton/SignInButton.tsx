@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { signIn, signOut, useSession } from "next-auth/react";
-import React, { useEffect } from "react";
+import React, { useEffect, MouseEvent } from "react";
 import NewNotification from "../Notification/NewNotification";
 import { setCookie } from "cookies-next";
 
@@ -20,7 +20,7 @@ export const SignInButton = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -30,13 +30,19 @@ export const SignInButton = () => {
 
   useEffect(() => {
     if (session?.access_token) {
-      setCookie("token", session?.access_token);
+      setCookie("token", session.access_token);
     }
-  }, [session]);
+  }, [session?.access_token]);
+
+  useEffect(() => {
+    if (session?.error === "RefreshAccessTokenError") {
+      signIn();
+    }
+  }, [session?.error]);
 
   if (session) {
     return (
-      <div className="flex items-center absolute right-4">
+      <div className="flex items-center right-4">
         <NewNotification />
         <Tooltip title="Account Settings">
           <IconButton

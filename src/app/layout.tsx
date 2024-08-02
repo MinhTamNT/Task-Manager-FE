@@ -1,4 +1,5 @@
 "use client";
+
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
@@ -13,7 +14,9 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ApolloProvider } from "@apollo/client";
 import { ProjectProvider } from "./components/Context/ProjectContext";
-import { client } from "./components/configs/ApolloClient";
+import { createApolloClient } from "./components/configs/ApolloClient";
+
+const client = createApolloClient();
 
 export default function RootLayout({
   children,
@@ -45,7 +48,7 @@ export default function RootLayout({
                       setIsSidebarOpen={handleMenuClick}
                     />
                   </div>
-                  <div className="content  mx-auto p-2 w-full">{children}</div>
+                  <div className="content mx-auto p-2 w-full">{children}</div>
                 </div>
               </div>
             </ProjectProvider>

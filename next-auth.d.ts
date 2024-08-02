@@ -10,6 +10,7 @@ declare module "next-auth" {
     };
     access_token: string;
     idToken: String;
+    error: string;
   }
 
   interface User {
@@ -22,5 +23,6 @@ declare module "next-auth/jwt" {
     id: string;
     accessToken: string;
     idToken: String;
+    error: String;
   }
 }

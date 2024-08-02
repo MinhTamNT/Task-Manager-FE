@@ -10,6 +10,7 @@ import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
 import { GRAPHQL_SERVER, GRAPHQL_SERVER_WB } from "@/app/utils/constants";
 import { getCookie } from "cookies-next";
+
 const authLink = new ApolloLink((operation, forward) => {
   const token = getCookie("token");
   operation.setContext({
@@ -21,18 +22,19 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
-// HTTP link
 const httpLink = new HttpLink({
   uri: GRAPHQL_SERVER,
 });
 
-const wsLink = new GraphQLWsLink(
-  createClient({
-    url: GRAPHQL_SERVER_WB,
-  })
-);
+const wsLink =
+  typeof window !== "undefined"
+    ? new GraphQLWsLink(
+        createClient({
+          url: GRAPHQL_SERVER_WB,
+        })
+      )
+    : null;
 
-// Phân biệt giữa các yêu cầu HTTP và WebSocket
 const splitLink = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
@@ -41,14 +43,17 @@ const splitLink = split(
       definition.operation === "subscription"
     );
   },
-  wsLink,
+  wsLink || httpLink,
   authLink.concat(httpLink)
 );
 
-// Tạo Apollo Client
-const client = new ApolloClient({
-  link: splitLink,
-  cache: new InMemoryCache(),
-});
+export function createApolloClient() {
+  const isServer = typeof window === "undefined";
 
-export { client };
+  return new ApolloClient({
+    ssrMode: isServer, // Set ssrMode based on environment
+    link: splitLink,
+    credentials: "same-origin",
+    cache: new InMemoryCache(),
+  });
+}
