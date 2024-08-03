@@ -1,12 +1,6 @@
 "use client";
-
-import { useProject } from "@/app/components/Context/ProjectContext";
-import LoadingSpinner from "@/app/components/Loading/Loading";
-import InviteMemberModal from "@/app/components/Modal/InviteMemberModal";
-import TaskModal from "@/app/components/Modal/TaskModal";
-import { Task } from "@/app/lib/interface";
-import { GET_PROJECT_BY_ID, PROJECT_UPDATED } from "@/app/utils/project";
-import { useQuery, useSubscription } from "@apollo/client";
+import React, { useEffect, useState } from "react";
+import { useQuery, useMutation, useSubscription } from "@apollo/client";
 import {
   Avatar,
   AvatarGroup,
@@ -24,22 +18,18 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
 import { GrAdd, GrProjects } from "react-icons/gr";
+import LoadingSpinner from "@/app/components/Loading/Loading";
+import InviteMemberModal from "@/app/components/Modal/InviteMemberModal";
+import TaskModal from "@/app/components/Modal/TaskModal";
+import { Task } from "@/app/lib/interface";
+import { GET_PROJECT_BY_ID, PROJECT_UPDATED } from "@/app/utils/project";
+import { ADD_NEW_TASK, GET_TASK_LIST } from "@/app/utils/task";
 
-const useProjectQuery = (
-  projectId: string | undefined,
-  token: string | undefined
-) => {
+const useProjectQuery = (projectId: string | undefined) => {
   return useQuery(GET_PROJECT_BY_ID, {
     variables: { getProjectByIdId: projectId },
-    context: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-    skip: !projectId || !token,
+    skip: !projectId,
   });
 };
 
@@ -50,35 +40,49 @@ const useProjectSubscription = (projectId: string | undefined) => {
   });
 };
 
-function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
+function ProjectInfor({ params }: { params: { id: string } }) {
+  const { data: listTask, refetch: refetchTasks } = useQuery<{
+    getTaskByProject: Task[];
+  }>(GET_TASK_LIST, {
+    variables: { projectId: params?.id },
+  });
+
   const [openTaskModal, setOpenTaskModal] = useState<boolean>(false);
   const [openInviteModal, setOpenInviteModal] = useState<boolean>(false);
   const [newTask, setNewTask] = useState<string>("");
   const [taskDescription, setTaskDescription] = useState<string>("");
-  const [taskAssignee, setTaskAssignee] = useState<string>("");
+  const [taskAssignees, setTaskAssignees] = useState<string[]>([]);
   const [taskDueDate, setTaskDueDate] = useState<string>("");
   const [taskStatus, setTaskStatus] = useState<string>("");
-  const [taskList, setTaskList] = useState<Task[]>([]);
+  const [taskList, setTaskList] = useState<Task[]>(
+    listTask?.getTaskByProject || []
+  );
   const [expandedTaskIds, setExpandedTaskIds] = useState<Set<string>>(
     new Set()
   );
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
 
-  const { data: session } = useSession();
-  const { projectID, setProjectId } = useProject();
+  const [assignmentTo] = useMutation(ADD_NEW_TASK);
   const {
     data: projectData,
     loading: projectLoading,
     error: projectError,
-  } = useProjectQuery(params?.id, session?.access_token);
+  } = useProjectQuery(params?.id);
 
   const { data: subscriptionData } = useProjectSubscription(params?.id);
 
   useEffect(() => {
     if (subscriptionData?.projectUpdated) {
+      refetchTasks(); // Refetch tasks when project updates
     }
-  }, [subscriptionData]);
+  }, [subscriptionData, refetchTasks]);
+
+  useEffect(() => {
+    if (listTask) {
+      setTaskList(listTask.getTaskByProject || []);
+    }
+  }, [listTask]);
 
   if (projectLoading) {
     return (
@@ -87,8 +91,13 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
       </Box>
     );
   }
+
   if (projectError) {
-    return <div>Error loading project: {projectError.message}</div>;
+    return (
+      <div className="text-red-500">
+        Error loading project: {projectError.message}
+      </div>
+    );
   }
 
   const project = projectData?.getProjectById;
@@ -106,11 +115,11 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
     }
   };
 
-  const handleCreateTask = () => {
+  const handleCreateTask = async () => {
     if (
       newTask.trim() === "" ||
       taskDescription.trim() === "" ||
-      taskAssignee.trim() === "" ||
+      taskAssignees.length === 0 ||
       taskDueDate.trim() === "" ||
       taskStatus.trim() === ""
     ) {
@@ -118,30 +127,36 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
       setSnackbarOpen(true);
       return;
     }
-    setTaskList((prevTaskList) => [
-      ...prevTaskList,
-      {
-        id: Date.now().toString(),
-        name: newTask,
-        description: taskDescription,
-        assignee: taskAssignee,
-        dueDate: taskDueDate,
-        status: taskStatus,
-      },
-    ]);
-    setOpenTaskModal(false);
-    setNewTask("");
-    setTaskDescription("");
-    setTaskAssignee("");
-    setTaskDueDate("");
-    setTaskStatus("");
+
+    try {
+      await assignmentTo({
+        variables: {
+          title: newTask,
+          description: taskDescription,
+          assignedTo: taskAssignees,
+          dueDate: taskDueDate,
+          status: taskStatus,
+          project: params?.id,
+        },
+      });
+
+      setOpenTaskModal(false);
+      setNewTask("");
+      setTaskDescription("");
+      setTaskAssignees([]);
+      setTaskDueDate("");
+      setTaskStatus("");
+    } catch (error) {
+      console.error("Error creating task:", error);
+      setSnackbarMessage("Error creating task");
+      setSnackbarOpen(true);
+    }
   };
 
   const handleInviteMember = () => {
     setOpenInviteModal(false);
   };
 
-  // Toggle task expansion
   const handleToggleExpand = (taskId: string) => {
     setExpandedTaskIds((prev) => {
       const newExpanded = new Set(prev);
@@ -159,13 +174,26 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
       <React.Fragment key={task.id}>
         <TableRow>
           <TableCell>
-            <Button onClick={() => handleToggleExpand(task.id)}>
+            <Button
+              onClick={() => handleToggleExpand(task.id)}
+              className="text-blue-500"
+            >
               {expandedTaskIds.has(task.id) ? "-" : "+"}
             </Button>
-            {task.name}
+            {task.title}
           </TableCell>
           <TableCell>{task.description}</TableCell>
-          <TableCell>{task.assignee}</TableCell>
+          <TableCell>
+            <AvatarGroup max={4}>
+              {task.assignee.map((assignee: any) => (
+                <Avatar
+                  key={assignee.uuid}
+                  src={assignee?.image}
+                  alt="member-picture"
+                />
+              ))}
+            </AvatarGroup>
+          </TableCell>
           <TableCell>{task.dueDate}</TableCell>
           <TableCell>{task.status}</TableCell>
           <TableCell>
@@ -200,7 +228,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
       </React.Fragment>
     ));
   };
-  console.log(project);
+
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg min-h-screen w-full">
       {project && (
@@ -218,7 +246,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
               </Box>
             </Tooltip>
           </Box>
-          <Box>
+          <Box className="mt-4">
             <Typography
               variant="h6"
               className="text-gray-800 font-semibold mb-2"
@@ -229,7 +257,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
               {project?.description ?? "No description available"}
             </Typography>
           </Box>
-          <Box>
+          <Box className="mt-4">
             <Typography
               variant="h6"
               className="text-gray-800 font-semibold mb-2"
@@ -238,16 +266,15 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
             </Typography>
             <div className="flex flex-wrap gap-2">
               {project?.members?.length > 0 ? (
-                project.members.map((member: any) => (
-                  <div
-                    key={member.uuid}
-                    className="text-gray-700 border-gray-300 hover:bg-gray-100 mb-3"
-                  >
-                    <AvatarGroup max={10}>
-                      <Avatar alt={member.name} src={member?.image} />
-                    </AvatarGroup>
-                  </div>
-                ))
+                <AvatarGroup max={10}>
+                  {project.members.map((member: any) => (
+                    <Avatar
+                      key={member.uuid}
+                      alt={member.name}
+                      src={member?.image}
+                    />
+                  ))}
+                </AvatarGroup>
               ) : (
                 <Typography className="text-gray-600">
                   No members assigned
@@ -255,7 +282,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
               )}
             </div>
           </Box>
-          <Box className="flex space-x-4">
+          <Box className="flex space-x-4 mt-4">
             <Button
               variant="contained"
               color="primary"
@@ -278,7 +305,7 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
                 <TableRow>
                   <TableCell>Task Name</TableCell>
                   <TableCell>Description</TableCell>
-                  <TableCell>Assignee</TableCell>
+                  <TableCell>Assignee(s)</TableCell>
                   <TableCell>Due Date</TableCell>
                   <TableCell>Status</TableCell>
                   <TableCell>Progress</TableCell>
@@ -298,12 +325,13 @@ function ProjectInfor({ params }: Readonly<{ params: { id: string } }>) {
         setNewTask={setNewTask}
         taskDescription={taskDescription}
         setTaskDescription={setTaskDescription}
-        taskAssignee={taskAssignee}
-        setTaskAssignee={setTaskAssignee}
+        taskAssignees={taskAssignees}
+        setTaskAssignees={setTaskAssignees}
         taskDueDate={taskDueDate}
         setTaskDueDate={setTaskDueDate}
         taskStatus={taskStatus}
         setTaskStatus={setTaskStatus}
+        users={projectData?.getProjectById?.members}
       />
 
       <InviteMemberModal

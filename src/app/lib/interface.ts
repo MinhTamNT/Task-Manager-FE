@@ -1,4 +1,5 @@
 export interface IUser {
+  id?: string;
   uuid?: string;
   name?: string;
   email?: string;
@@ -22,9 +23,9 @@ export interface TabPanelProps {
 
 export interface Task {
   id: string;
-  name: string;
+  title: string;
   description: string;
-  assignee: string;
+  assignee: IUser[];
   dueDate: string;
   status: string;
   subTasks?: Task[];

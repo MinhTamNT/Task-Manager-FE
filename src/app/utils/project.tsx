@@ -43,6 +43,7 @@ const GET_PROJECT_BY_ID = gql`
       name
       description
       members {
+        id
         name
         image
       }

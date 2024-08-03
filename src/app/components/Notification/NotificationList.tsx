@@ -47,14 +47,6 @@ const NotificationList: React.FC = () => {
     }
   }, [data]);
 
-  const handleMouseEnter = async (id: string) => {
-    try {
-      await markNotificationAsRead({ variables: { id } });
-    } catch (error) {
-      console.error("Failed to mark notification as read", error);
-    }
-  };
-
   const handleAccept = async (notificationId: string, projectId: string) => {
     try {
       await updateInvitationStatus({
@@ -93,7 +85,6 @@ const NotificationList: React.FC = () => {
                 ? "bg-gray-50 border-gray-200"
                 : "bg-blue-50 border-blue-300"
             } transition duration-300 ease-in-out hover:bg-blue-100 cursor-pointer relative flex items-start`}
-            onMouseEnter={() => handleMouseEnter(notification.id)}
           >
             <div className="w-6 h-6 mr-3 flex-shrink-0">
               {notification.read ? (
@@ -106,26 +97,27 @@ const NotificationList: React.FC = () => {
               <p className="text-sm text-gray-700">{notification.message}</p>
               {notification.message.includes(
                 "You have been invited to join the project"
-              ) && (
-                <div className="mt-3 flex space-x-2">
-                  <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                    onClick={() =>
-                      handleAccept(notification.id, notification.projectId)
-                    }
-                  >
-                    Accept
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                    onClick={() =>
-                      handleDecline(notification.id, notification.projectId)
-                    }
-                  >
-                    Decline
-                  </button>
-                </div>
-              )}
+              ) &&
+                !notification?.read && (
+                  <div className="mt-3 flex space-x-2">
+                    <button
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                      onClick={() =>
+                        handleAccept(notification.id, notification.projectId)
+                      }
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+                      onClick={() =>
+                        handleDecline(notification.id, notification.projectId)
+                      }
+                    >
+                      Decline
+                    </button>
+                  </div>
+                )}
             </div>
             {!notification.read && (
               <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
