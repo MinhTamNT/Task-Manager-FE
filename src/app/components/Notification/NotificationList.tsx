@@ -72,10 +72,18 @@ const NotificationList: React.FC = () => {
   if (!notifications) return <LoadingSpinner />;
 
   return (
-    <div className="p-4 bg-white shadow-md rounded-lg w-full">
+    <div className="p-4 bg-white shadow-md rounded-lg w-full min-h-screen">
       <h2 className="text-2xl font-bold mb-4 text-gray-800">Notifications</h2>
       {notifications.length === 0 ? (
-        <p className="text-center text-gray-600">No notifications available</p>
+        <div className="flex justify-center flex-col">
+          <img
+            src="https://cdn.dribbble.com/userupload/10189587/file/original-e73c198b01742a9a4256e1ba496a2118.jpg?resize=1024x768"
+            className="h-96 object-cover"
+          />
+          <p className="text-center text-red-300 uppercase transition-transform duration-300 hover:scale-105 hover:text-red-500">
+            No notifications available
+          </p>
+        </div>
       ) : (
         notifications.map((notification) => (
           <div

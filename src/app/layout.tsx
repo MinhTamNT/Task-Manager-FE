@@ -39,16 +39,18 @@ export default function RootLayout({
           <ApolloProvider client={client}>
             <ProjectProvider>
               <ToastContainer />
-              <div className="header">
-                <Header onMenuClick={handleMenuClick} />
-                <div className={`md:flex min-h-screen pt-[60px]`}>
-                  <div className={`md:block`}>
-                    <Sidebar
-                      isOpen={isSidebarOpen}
-                      setIsSidebarOpen={handleMenuClick}
-                    />
+              <div className="overflow-x-hidden md:overflow-auto">
+                <div className="header">
+                  <Header onMenuClick={handleMenuClick} />
+                  <div className={`md:flex min-h-screen pt-[60px]`}>
+                    <div className={`md:block`}>
+                      <Sidebar
+                        isOpen={isSidebarOpen}
+                        setIsSidebarOpen={handleMenuClick}
+                      />
+                    </div>
+                    <div className="content mx-auto p-2 w-full">{children}</div>
                   </div>
-                  <div className="content mx-auto p-2 w-full">{children}</div>
                 </div>
               </div>
             </ProjectProvider>

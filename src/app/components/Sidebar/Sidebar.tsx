@@ -21,7 +21,6 @@ interface IProp {
 const sidebarItems: SidebarItem[] = [
   { icon: <DashboardIcon />, text: "Dashboard", url: "/" },
   { icon: <ProjectIcon />, text: "Project", url: "/project" },
-  { icon: <TeamIcon />, text: "Team", url: "/team" },
   { icon: <MessageIcon />, text: "Messages", url: "/message" },
   { icon: <NotificationIcon />, text: "Notifications", url: "/notification" },
 ];

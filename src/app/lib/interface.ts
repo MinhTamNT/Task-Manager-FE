@@ -3,6 +3,7 @@ export interface IUser {
   uuid?: string;
   name?: string;
   email?: string;
+  image?: string;
 }
 
 export interface IProject {
