@@ -62,6 +62,7 @@ function ProjectInfor({ params }: { params: { id: string } }) {
   );
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [assignmentTo] = useMutation(ADD_NEW_TASK);
   const {
@@ -74,7 +75,7 @@ function ProjectInfor({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (subscriptionData?.projectUpdated) {
-      refetchTasks(); // Refetch tasks when project updates
+      refetchTasks();
     }
   }, [subscriptionData, refetchTasks]);
 
@@ -127,7 +128,7 @@ function ProjectInfor({ params }: { params: { id: string } }) {
       setSnackbarOpen(true);
       return;
     }
-
+    setIsLoading(true);
     try {
       await assignmentTo({
         variables: {
@@ -146,10 +147,13 @@ function ProjectInfor({ params }: { params: { id: string } }) {
       setTaskAssignees([]);
       setTaskDueDate("");
       setTaskStatus("");
+      refetchTasks();
     } catch (error) {
       console.error("Error creating task:", error);
       setSnackbarMessage("Error creating task");
       setSnackbarOpen(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -332,6 +336,7 @@ function ProjectInfor({ params }: { params: { id: string } }) {
         taskStatus={taskStatus}
         setTaskStatus={setTaskStatus}
         users={projectData?.getProjectById?.members}
+        isLoading={isLoading}
       />
 
       <InviteMemberModal

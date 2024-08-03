@@ -29,6 +29,7 @@ interface TaskModalProps {
   taskStatus: string;
   setTaskStatus: (value: string) => void;
   users: IUser[]; // Added to provide the list of users for assignees
+  isLoading: boolean; // Changed from Boolean to boolean
 }
 
 const TaskModal: FC<TaskModalProps> = ({
@@ -46,6 +47,7 @@ const TaskModal: FC<TaskModalProps> = ({
   taskStatus,
   setTaskStatus,
   users,
+  isLoading,
 }) => {
   const statusOptions = ["To Do", "In Progress", "Completed"]; // Define status options
 
@@ -143,8 +145,9 @@ const TaskModal: FC<TaskModalProps> = ({
             color="primary"
             onClick={onCreateTask}
             className="bg-blue-500 text-white hover:bg-blue-600"
+            disabled={isLoading}
           >
-            Create
+            {isLoading ? "Creating..." : "Create"}
           </Button>
         </Box>
       </Box>

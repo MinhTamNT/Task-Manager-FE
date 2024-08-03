@@ -31,6 +31,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import ModalCreateProject from "../Modal/ModalCreateProject";
 import { columns } from "./ProjectColums";
+import { useMutation } from "@apollo/client";
 
 const ListProject: React.FC = () => {
   const [sortOption, setSortOption] = useState<string>("view");
@@ -40,6 +41,7 @@ const ListProject: React.FC = () => {
   const [nameProject, setNameProject] = useState("");
   const [description, setDescription] = useState("");
   const [refresh, setRefresh] = useState<boolean>(false);
+  const [deleteProject] = useMutation(DELETE_PROJECT);
   const searchParams = useSearchParams();
   const router = useRouter(); // Use only this
 
@@ -101,13 +103,11 @@ const ListProject: React.FC = () => {
 
   const hanlderDeletedProject = async (projectId: string) => {
     try {
-      await graphQLRequest(
-        DELETE_PROJECT,
-        {
+      await deleteProject({
+        variables: {
           deleteProjectId: projectId,
         },
-        session?.access_token
-      );
+      });
       setRefresh((prev) => !prev);
       toast.success("Deleted the project successfully");
     } catch (error) {

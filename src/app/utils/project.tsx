@@ -29,12 +29,12 @@ query Query {
 }
 `;
 
-const DELETE_PROJECT = `
-mutation DeleteProject($deleteProjectId: ID!) {
-  deleteProject(id: $deleteProjectId) {
-    name
+const DELETE_PROJECT = gql`
+  mutation DeleteProject($deleteProjectId: ID!) {
+    deleteProject(id: $deleteProjectId) {
+      message
+    }
   }
-}
 `;
 const GET_PROJECT_BY_ID = gql`
   query GetProjectById($getProjectByIdId: ID!) {
