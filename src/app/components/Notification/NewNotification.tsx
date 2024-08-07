@@ -11,11 +11,14 @@ import {
 } from "@heroicons/react/24/outline";
 import { NotificationsOutlined } from "@mui/icons-material";
 import { Badge, Box, IconButton, Menu, Tooltip } from "@mui/material";
+import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
+
 export default function NewNotification() {
   const { data } = useQuery<{ notifications: Notification[] }>(
     GET_NOTIFICATIONS
   );
+  const { data: sessionData } = useSession();
   const [updateInvitationStatus] = useMutation<{ updateInvitationStatus: any }>(
     UPDATE_INVITATION_STATUS
   );
@@ -23,21 +26,28 @@ export default function NewNotification() {
   const [notificationCount, setNotificationCount] = useState<number>(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const open = Boolean(anchorEl);
-
   const { data: subscriptionData } = useSubscription<NotificationCreatedData>(
     NOTIFICATION_CREATED_SUBSCRIPTION,
     {
       onSubscriptionData: ({ subscriptionData }) => {
+        console.log("Subscription Data:", subscriptionData);
         if (subscriptionData && subscriptionData.data) {
           const newNotification = subscriptionData.data.notificationCreated;
-          setNotifications((prevNotifications) => {
-            const updatedNotifications = [
-              ...prevNotifications,
-              newNotification,
-            ];
-            setNotificationCount(updatedNotifications.length); // Update count
-            return updatedNotifications;
-          });
+          console.log("New Notification:", newNotification);
+
+          const currentUserId = sessionData?.user.id;
+          console.log(currentUserId);
+          console.log(newNotification.userId);
+          if (currentUserId && newNotification.userId === currentUserId) {
+            setNotifications((prevNotifications) => {
+              const updatedNotifications = [
+                ...prevNotifications,
+                newNotification,
+              ];
+              setNotificationCount(updatedNotifications.length);
+              return updatedNotifications;
+            });
+          }
         }
       },
     }

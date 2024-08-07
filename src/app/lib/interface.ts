@@ -35,6 +35,7 @@ export interface Task {
 export interface Notification {
   id: string;
   message: string;
+  userId: string;
   projectId: string;
   read: boolean;
   type: string;

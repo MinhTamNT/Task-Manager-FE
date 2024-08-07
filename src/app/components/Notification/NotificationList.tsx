@@ -1,4 +1,5 @@
 import {
+  DELETED_NOTIFY,
   GET_NOTIFICATIONS,
   MARK_NOTIFICATION_AS_READ,
   NOTIFICATION_CREATED_SUBSCRIPTION,
@@ -10,11 +11,12 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import React, { useEffect, useState } from "react";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import LoadingSpinner from "../Loading/Loading";
 import { Notification, NotificationCreatedData } from "@/app/lib/interface";
 
 const NotificationList: React.FC = () => {
-  const { data } = useQuery<{ notifications: Notification[] }>(
+  const { data, refetch } = useQuery<{ notifications: Notification[] }>(
     GET_NOTIFICATIONS
   );
   const [markNotificationAsRead] = useMutation<{
@@ -25,6 +27,7 @@ const NotificationList: React.FC = () => {
   );
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [DeletedNotification] = useMutation(DELETED_NOTIFY);
 
   const { data: subscriptionData } = useSubscription<NotificationCreatedData>(
     NOTIFICATION_CREATED_SUBSCRIPTION,
@@ -69,6 +72,19 @@ const NotificationList: React.FC = () => {
     }
   };
 
+  const handleDelete = async (notificationId: string) => {
+    try {
+      await DeletedNotification({
+        variables: {
+          deletedNotificationId: notificationId,
+        },
+      });
+      refetch();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   if (!notifications) return <LoadingSpinner />;
 
   return (
@@ -85,53 +101,87 @@ const NotificationList: React.FC = () => {
           </p>
         </div>
       ) : (
-        notifications.map((notification) => (
-          <div
-            key={notification.id}
-            className={`p-4 mb-3 rounded-lg border ${
-              notification.read
-                ? "bg-gray-50 border-gray-200"
-                : "bg-blue-50 border-blue-300"
-            } transition duration-300 ease-in-out hover:bg-blue-100 cursor-pointer relative flex items-start`}
-          >
-            <div className="w-6 h-6 mr-3 flex-shrink-0">
-              {notification.read ? (
-                <InformationCircleIcon className="text-gray-500 w-full h-full" />
-              ) : (
-                <CheckCircleIcon className="text-blue-500 w-full h-full" />
-              )}
-            </div>
-            <div className="flex-grow">
-              <p className="text-sm text-gray-700">{notification.message}</p>
-              {notification.message.includes(
-                "You have been invited to join the project"
-              ) &&
-                !notification?.read && (
-                  <div className="mt-3 flex space-x-2">
-                    <button
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-                      onClick={() =>
-                        handleAccept(notification.id, notification.projectId)
-                      }
-                    >
-                      Accept
-                    </button>
-                    <button
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-                      onClick={() =>
-                        handleDecline(notification.id, notification.projectId)
-                      }
-                    >
-                      Decline
-                    </button>
-                  </div>
+        <TransitionGroup className="notification-list">
+          {notifications.map((notification) => (
+            <CSSTransition
+              key={notification.id}
+              timeout={300}
+              classNames="slide"
+            >
+              <div
+                className={`p-4 mb-3 rounded-lg border ${
+                  notification.read
+                    ? "bg-gray-50 border-gray-200"
+                    : "bg-blue-50 border-blue-300"
+                } transition duration-300 ease-in-out hover:bg-blue-100 cursor-pointer relative flex items-start`}
+              >
+                <div className="w-6 h-6 mr-3 flex-shrink-0">
+                  {notification.read ? (
+                    <InformationCircleIcon className="text-gray-500 w-full h-full" />
+                  ) : (
+                    <CheckCircleIcon className="text-blue-500 w-full h-full" />
+                  )}
+                </div>
+                <div className="flex-grow">
+                  <p className="text-sm text-gray-700">
+                    {notification.message}
+                  </p>
+                  {notification.message.includes(
+                    "You have been invited to join the project"
+                  ) &&
+                    !notification?.read && (
+                      <div className="mt-3 flex space-x-2">
+                        <button
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                          onClick={() =>
+                            handleAccept(
+                              notification.id,
+                              notification.projectId
+                            )
+                          }
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+                          onClick={() =>
+                            handleDecline(
+                              notification.id,
+                              notification.projectId
+                            )
+                          }
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    )}
+                </div>
+                <button
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                  onClick={() => handleDelete(notification.id)}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+                {!notification.read && (
+                  <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
                 )}
-            </div>
-            {!notification.read && (
-              <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-            )}
-          </div>
-        ))
+              </div>
+            </CSSTransition>
+          ))}
+        </TransitionGroup>
       )}
     </div>
   );

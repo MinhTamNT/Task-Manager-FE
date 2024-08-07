@@ -14,15 +14,17 @@ const CREATE_CONVERSATION = gql`
   }
 `;
 
-const GET_NOTIFICATION = gql`
-  query GetConversationById($getConversationByIdId: ID!) {
-    getConversationById(id: $getConversationByIdId) {
+const GET_CONVERSATION = gql`
+  query Query {
+    getConversationsByUserId {
+      id
       participants {
         name
-        id
         image
+        id
+        uuid
       }
     }
   }
 `;
-export { CREATE_CONVERSATION, GET_NOTIFICATION };
+export { CREATE_CONVERSATION, GET_CONVERSATION };

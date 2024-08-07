@@ -1,23 +1,22 @@
+import { INVITE_USER } from "@/app/utils/project";
+import { graphQLRequest } from "@/app/utils/request";
+import { SEARCH_USER } from "@/app/utils/user";
+import { useMutation } from "@apollo/client";
 import {
+  Avatar,
   Box,
-  Typography,
   Button,
-  Modal,
-  TextField,
   List,
   ListItem,
   ListItemText,
-  Avatar,
+  Modal,
   Snackbar,
+  TextField,
+  Typography,
 } from "@mui/material";
-import React, { FC, useEffect, useState } from "react";
-import { graphQLRequest } from "@/app/utils/request";
-import { SEARCH_USER } from "@/app/utils/user";
 import { useSession } from "next-auth/react";
+import { FC, useEffect, useState } from "react";
 import { styleModalInvite } from "../Style/Mui/Mui";
-import { INVITE_USER } from "@/app/utils/project";
-import { useMutation } from "@apollo/client";
-import { useProject } from "../Context/ProjectContext";
 
 interface InviteMemberModalProps {
   open: boolean;
@@ -39,7 +38,6 @@ const InviteMemberModal: FC<InviteMemberModalProps> = ({
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>("");
   const { data: session } = useSession();
-  const { projectID, setProjectId } = useProject(); // Access context
   const handleSearch = async () => {
     if (searchTerm.trim() === "") return;
     try {
@@ -75,7 +73,6 @@ const InviteMemberModal: FC<InviteMemberModalProps> = ({
 
       setSnackbarOpen(true);
       onInviteMember();
-      setProjectId(projectId);
     } catch (error) {
       setSnackbarMessage("Error inviting user");
       setSnackbarOpen(true);

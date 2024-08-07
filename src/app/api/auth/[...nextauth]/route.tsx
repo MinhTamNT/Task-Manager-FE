@@ -124,6 +124,7 @@ const authOptions: NextAuthOptions = {
       if (token) {
         session.access_token = token.idToken as string;
         session.error = token.errror as string;
+        session.user.id = token.sub as string;
       }
       return session;
     },

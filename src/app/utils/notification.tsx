@@ -67,6 +67,13 @@ const UPDATE_INVITATION_STATUS = gql`
   }
 `;
 
+const DELETED_NOTIFY = gql`
+  mutation Mutation($deletedNotificationId: ID!) {
+    deletedNotification(id: $deletedNotificationId) {
+      message
+    }
+  }
+`;
 export {
   INVITATION_RECEIVED_SUBSCRIPTION,
   NOTIFICATION_CREATED_SUBSCRIPTION,
@@ -74,4 +81,5 @@ export {
   MARK_NOTIFICATION_AS_READ,
   UPDATE_INVITATION_STATUS,
   INVITATION_STATUS_CHANGED,
+  DELETED_NOTIFY,
 };
